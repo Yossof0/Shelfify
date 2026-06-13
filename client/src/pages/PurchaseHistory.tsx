@@ -79,15 +79,15 @@ export default function PurchaseHistory() {
           {expandedPurchases[purchase.id] && (
             <CardContent className="pt-0 border-t border-slate-200">
               <div className="mt-4 space-y-3">
-                {purchase.items && purchase.items.length > 0 ? (
+                {Array.isArray(purchase.items) && purchase.items.length > 0 ? (
                   purchase.items.map((item: any, idx: number) => (
                     <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-slate-900">
-                          {item.productId} (Qty: {item.quantity})
+                          {item.productName ?? `Product #${item.productId}`}
                         </p>
                         <p className="text-xs text-slate-600 mt-1">
-                          ${parseFloat(item.priceAtPurchase).toFixed(2)} each
+                          {item.quantity} × ${parseFloat(item.priceAtPurchase).toFixed(2)} each
                         </p>
                       </div>
                       <div className="text-right">

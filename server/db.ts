@@ -121,12 +121,40 @@ export async function deleteAllProductsByUserId(userId: number) {
   return db.delete(products).where(eq(products.userId, userId));
 }
 
-// Purchases queries
+// Purchases queries — returns each purchase with its line items and product names
 export async function getPurchasesByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  const result = await db.select().from(purchases).where(eq(purchases.userId, userId)).orderBy(desc(purchases.createdAt));
-  return result;
+
+  const purchaseList = await db
+    .select()
+    .from(purchases)
+    .where(eq(purchases.userId, userId))
+    .orderBy(desc(purchases.createdAt));
+
+  if (purchaseList.length === 0) return [];
+
+  // For each purchase, fetch its items joined with the product name
+  const enriched = await Promise.all(
+    purchaseList.map(async (purchase) => {
+      const items = await db
+        .select({
+          id: purchaseItems.id,
+          purchaseId: purchaseItems.purchaseId,
+          productId: purchaseItems.productId,
+          quantity: purchaseItems.quantity,
+          priceAtPurchase: purchaseItems.priceAtPurchase,
+          productName: products.name,
+        })
+        .from(purchaseItems)
+        .leftJoin(products, eq(purchaseItems.productId, products.id))
+        .where(eq(purchaseItems.purchaseId, purchase.id));
+
+      return { ...purchase, items };
+    })
+  );
+
+  return enriched;
 }
 
 export async function createPurchase(purchase: Omit<InsertPurchase, 'createdAt'>) {

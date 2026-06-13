@@ -60,12 +60,23 @@ export function fuzzySearch<T>(
   return results;
 }
 
+// Bug #10 fix: safe JSON parse so malformed tag strings never crash the search
+function safeParseTags(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export function fuzzySearchProducts(
   query: string,
   products: any[]
 ): any[] {
   return fuzzySearch(query, products, (product) => {
-    const tags = product.tags ? JSON.parse(product.tags) : [];
+    const tags = safeParseTags(product.tags);
     return [
       product.name,
       product.description || '',

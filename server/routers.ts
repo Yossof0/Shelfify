@@ -28,7 +28,7 @@ export const appRouter = router({
         z.object({
           name: z.string().min(1),
           description: z.string().optional(),
-          price: z.string().regex(/^\d+(\.\d{2})?$/),
+          price: z.string().regex(/^\d+(\.\d{1,2})?$/),
           tags: z.string().optional(),
           photoUrl: z.string().optional(),
         })
@@ -51,7 +51,7 @@ export const appRouter = router({
           id: z.number(),
           name: z.string().min(1).optional(),
           description: z.string().optional(),
-          price: z.string().regex(/^\d+(\.\d{2})?$/).optional(),
+          price: z.string().regex(/^\d+(\.\d{1,2})?$/).optional(),
           tags: z.string().optional(),
           photoUrl: z.string().optional(),
         })
